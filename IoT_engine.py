@@ -7,13 +7,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 
-def sign_data(data):
-
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-        backend=default_backend()
-    )   
+def sign_data(data): 
 
     message = json.dumps(data).encode()
 
@@ -27,6 +21,22 @@ def sign_data(data):
     )
     
     return signature
+
+def verification(signature, data):
+
+    message = json.dumps(data).encode()
+
+    public_key.verify(
+        signature,
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+
+
 
 
 def generate_sensor_data():
@@ -44,10 +54,34 @@ def generate_sensor_data():
             }
 
 
-            print(data)
-            print(sign_data(data))
-        time.sleep(1)  # 1 sec delay per measurement
+            singature = sign_data(data)
+
+
+            try:
+                verification(singature, data)
+            except InvalidSignature:
+                # Dont forward to Kafka
+                # Raise alarm
+                print("ALARM")
+            else:
+                # Forward to Kafka
+                print("Verified")
+
+
+
+        time.sleep(10)  # 1 sec delay per measurement
 
 
 if __name__ == "__main__":
+
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )  
+    print(private_key)
+
+    public_key = private_key.public_key()
+    print(public_key)
+
     generate_sensor_data()
