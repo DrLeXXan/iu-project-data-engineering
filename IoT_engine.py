@@ -1,28 +1,33 @@
 import time
 import random
+import json
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 
-def validate_data(data):
-    """Validates the sensor data before transmitting."""
-    if not isinstance(data["engine_id"], str):
-        print(f"Incorrect engine_id: {data['engine_id']}")
-        return False
-    if not isinstance(data["timestamp"], str):
-        print(f"Incorrect timestamp: {data['timestamp']}")
-        return False
-    if not (50.0 <= data["temperature"] <= 100.0):
-        print(f"Incorrect temperatur: {data['temperature']}")
-        return False
-    if not (0.1 <= data["vibration"] <= 5.0):
-        print(f"Incorrect vibration: {data['vibration']}")
-        return False
-    if not (10.0 <= data["pressure"] <= 50.0):
-        print(f"Incorrect pressure: {data['pressure']}")
-        return False
-    if not (500 <= data["rpm"] <= 5000):
-        print(f"Incorrect RPM: {data['rpm']}")
-        return False
-    return True
+def sign_data(data):
+
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )   
+
+    message = json.dumps(data).encode()
+
+    signature = private_key.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    
+    return signature
+
 
 def generate_sensor_data():
     """Generates continues (simulated) sensor data for four IoT-Engines."""
@@ -38,10 +43,9 @@ def generate_sensor_data():
                 "rpm": random.randint(1000, 3000),
             }
 
-            if validate_data(data):
-                print(f"Send: {data}")
-            else:
-                print(f"Fehlerhafte Daten erkannt: {data}")
+
+            print(data)
+            print(sign_data(data))
         time.sleep(1)  # 1 sec delay per measurement
 
 
