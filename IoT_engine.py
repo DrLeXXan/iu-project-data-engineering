@@ -64,18 +64,23 @@ def generate_sensor_data():
 
             chunk = {
                         "data": data, 
-                        "public_key": public_pem, 
                         "signature": signature_base64
                     }
             
-            yield json.dumps(chunk, indent=2)
+            yield json.dumps(chunk, ensure_ascii=False) + "\n"
 
         time.sleep(1)  # 1 sec delay per measurement
 
-@app.get("/stream")
-async def stream_data():
-    return StreamingResponse(generate_sensor_data(), media_type="text/event-stream")
 
 @app.get("/")
 def home():
     return {"message": "FastAPI Streaming Server is Running"}
+
+@app.get("/public-key")
+def get_public_key():
+    """Returns the RSA public key in PEM format."""
+    return {"public-key": public_pem}
+
+@app.get("/stream")
+async def stream_data():
+    return StreamingResponse(generate_sensor_data(), media_type="text/event-stream")

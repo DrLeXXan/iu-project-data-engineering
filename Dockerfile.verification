@@ -1,0 +1,9 @@
+FROM python:3.9
+
+WORKDIR /app
+
+COPY verification.py .
+
+RUN pip install requests cryptography
+
+CMD ["python", "-u", "verification.py"]

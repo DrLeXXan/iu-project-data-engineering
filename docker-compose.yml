@@ -1,10 +1,24 @@
-version: "3.8"
-
 services:
-  engine-server:
+  engine-fastapi-server:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: engine_server
+      dockerfile: Dockerfile.engine
+    container_name: engine_fastapi_server
     ports:
       - "8000:8000"
+    networks:
+      - rsa-network
+
+  verification-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.verification
+    container_name: verification_client
+    depends_on:
+      - engine-fastapi-server
+    networks:
+      - rsa-network
+
+networks:
+  rsa-network:
+    driver: bridge
