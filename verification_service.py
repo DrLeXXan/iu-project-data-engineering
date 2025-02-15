@@ -9,6 +9,7 @@ CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
 
 def fetch_public_key():
+    """Returns the public key which is received through the Cryptography API"""
     try:
         public_key_pem = requests.get(f"{CRYPTOGRAPHY_SERVICE_FASTAPI_URL}/public-key").json()["public-key"]
         return serialization.load_pem_public_key(public_key_pem.encode("utf-8"))
@@ -17,7 +18,8 @@ def fetch_public_key():
         return None
 
 
-def verify_signature(public_key, data, signature_base64):
+def verify_signature(public_key, data, signature_base64) -> str:
+    """Verifies the received signature before injecting the data chunks into apache cluster"""
     try:
         signature = base64.b64decode(signature_base64)
 
@@ -34,9 +36,9 @@ def verify_signature(public_key, data, signature_base64):
         # Insert data into the pipline -> Kafka producer
     except Exception as e:
         print(f"Signature verification failed: {e}")
-        # Dont insert data into the pipline -> Security Hub
 
-def stream_and_verify(public_key):
+def stream_and_verify(public_key) -> None:
+    """Received the data stream from the smart factory (engine) API"""
     try:
         with requests.get(f"{ENGINE_FASTAPI_SERVER_URL}/stream", stream=True) as response:
             for line in response.iter_lines():
@@ -58,7 +60,7 @@ def stream_and_verify(public_key):
     except Exception as e:
         print(f"Error connecting to stream: {e}")
 
-        
+
 if __name__ == "__main__":
     time.sleep(5)
 
@@ -68,4 +70,3 @@ if __name__ == "__main__":
     if public_key:
         print("Public Key Retrieved. Starting verification...")
         stream_and_verify(public_key)
-        

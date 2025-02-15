@@ -7,7 +7,7 @@ app = FastAPI()
 
 # Generate RSA keys once and store them
 def generate_rsa_keys() -> str:
-    """This function generates the private and public key and returns them as serialized and decoded string"""
+    """Generates the private and public key and returns them as serialized and decoded string"""
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,

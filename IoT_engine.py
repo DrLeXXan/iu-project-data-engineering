@@ -13,16 +13,17 @@ CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 app = FastAPI()
 
 def fetch_private_key():
+    """Returns the private key which is received through the Cryptography API"""
     try:
         private_key_pem = requests.get(f"{CRYPTOGRAPHY_SERVICE_FASTAPI_URL}/private-key").json()["private-key"]
         return serialization.load_pem_private_key(private_key_pem.encode("utf-8"),password=None)
     except Exception as e:
         print(f"Error fetching private key: {e}")
         return None
-    
+
 private_key = fetch_private_key()
 
-def sign_data(data, private_key): 
+def sign_data(data, private_key) -> bytes:
 
     message = json.dumps(data).encode()
 
@@ -34,11 +35,11 @@ def sign_data(data, private_key):
         ),
         hashes.SHA256()
     )
-    
+
     return signature
 
 
-def generate_sensor_data():
+def generate_sensor_data() -> iter:
     """Generates continues (simulated) sensor data for four IoT-Engines."""
     machine_ids = ["engine_001", "engine_002", "engine_003", "engine_004"]
     while True:
@@ -52,16 +53,16 @@ def generate_sensor_data():
                 "rpm": random.randint(1000, 3000),
             }
 
-            
+
 
             signature = sign_data(data, private_key)
             signature_base64 = base64.b64encode(signature).decode("utf-8")
 
             chunk = {
-                        "data": data, 
+                        "data": data,
                         "signature": signature_base64
                     }
-            
+
             yield json.dumps(chunk, ensure_ascii=False) + "\n"
 
         time.sleep(1)  # 1 sec delay per measurement
