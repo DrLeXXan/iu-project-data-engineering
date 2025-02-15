@@ -6,7 +6,7 @@ import time
 import json
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
-ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
+ENGINE_FASTAPI_SERVER_URL = "http://factory_service:8000"
 
 def fetch_public_key():
     """Returns the public key which is received through the Cryptography API"""

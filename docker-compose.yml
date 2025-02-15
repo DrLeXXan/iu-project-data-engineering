@@ -1,25 +1,18 @@
 services:
-  engine-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.engine
-    container_name: engine_service
-    depends_on:
-      - cryptography-service
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik_lb
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8000"
     ports:
-      - "8001:8001"
+      - "8000:8000"  # API Gateway für Microservices
+      - "8080:8080"  # Traefik Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - app-network
-
-  verification-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.verification
-    container_name: verification_service
-    depends_on:
-      - engine-service
-    networks:
-      - app-network
+      - pipline-network
 
   cryptography-service:
     build:
@@ -27,10 +20,47 @@ services:
       dockerfile: Dockerfile.crypto
     container_name: cryptography_service
     ports:
-      - "8000:8000"
+      - "8001:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cryptography.rule=Host(`localhost`)"
+      - "traefik.http.services.cryptography.loadbalancer.server.port=8000"
     networks:
-      - app-network
+      - pipline-network
+
+  factory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.factory
+    container_name: factory_service
+    depends_on:
+      - cryptography-service
+    ports:
+      - "8002:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.factory.rule=Host(`localhost`)"
+      - "traefik.http.services.factory.loadbalancer.server.port=8000"
+    networks:
+      - pipline-network
+
+  verification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.verification
+    container_name: verification_service
+    depends_on:
+      - cryptography-service
+      - factory-service
+    ports:
+      - "8003:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.validator.rule=Host(`localhost`)"
+      - "traefik.http.services.validator.loadbalancer.server.port=8000"
+    networks:
+      - pipline-network
 
 networks:
-  app-network:
+  pipline-network:
     driver: bridge
