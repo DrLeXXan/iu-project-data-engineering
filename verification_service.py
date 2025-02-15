@@ -5,11 +5,12 @@ import requests
 import time
 import json
 
-ENGINE_FASTAPI_SERVER_URL = "http://engine-fastapi-server:8000"
+CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
+ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
 
 def fetch_public_key():
     try:
-        public_key_pem = requests.get(f"{ENGINE_FASTAPI_SERVER_URL}/public-key").json()["public-key"]
+        public_key_pem = requests.get(f"{CRYPTOGRAPHY_SERVICE_FASTAPI_URL}/public-key").json()["public-key"]
         return serialization.load_pem_public_key(public_key_pem.encode("utf-8"))
     except Exception as e:
         print(f"Error fetching public key: {e}")
@@ -30,7 +31,7 @@ def verify_signature(public_key, data, signature_base64):
             hashes.SHA256()
         )
         print(f"Signature valid for message: {data}")
-        # Insert data into the pipline -> Kafka
+        # Insert data into the pipline -> Kafka producer
     except Exception as e:
         print(f"Signature verification failed: {e}")
         # Dont insert data into the pipline -> Security Hub
@@ -58,12 +59,13 @@ def stream_and_verify(public_key):
         print(f"Error connecting to stream: {e}")
 
         
-
 if __name__ == "__main__":
     time.sleep(5)
 
     public_key = fetch_public_key()
 
+
     if public_key:
         print("Public Key Retrieved. Starting verification...")
         stream_and_verify(public_key)
+        

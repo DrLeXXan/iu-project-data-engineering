@@ -2,8 +2,8 @@ FROM python:3.9
 
 WORKDIR /app
 
-COPY verification.py .
+COPY verification_service.py .
 
 RUN pip install requests cryptography
 
-CMD ["python", "-u", "verification.py"]
+CMD ["python", "-u", "verification_service.py"]
