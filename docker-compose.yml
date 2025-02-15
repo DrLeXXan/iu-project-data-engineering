@@ -1,0 +1,36 @@
+services:
+  engine-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.engine
+    container_name: engine_service
+    depends_on:
+      - cryptography-service
+    ports:
+      - "8001:8001"
+    networks:
+      - app-network
+
+  verification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.verification
+    container_name: verification_service
+    depends_on:
+      - engine-service
+    networks:
+      - app-network
+
+  cryptography-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.crypto
+    container_name: cryptography_service
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

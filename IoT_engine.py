@@ -1,28 +1,42 @@
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes, serialization
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import requests
 import time
 import random
+import json
+import base64
 
+CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 
-def validate_data(data):
-    """Validates the sensor data before transmitting."""
-    if not isinstance(data["engine_id"], str):
-        print(f"Incorrect engine_id: {data['engine_id']}")
-        return False
-    if not isinstance(data["timestamp"], str):
-        print(f"Incorrect timestamp: {data['timestamp']}")
-        return False
-    if not (50.0 <= data["temperature"] <= 100.0):
-        print(f"Incorrect temperatur: {data['temperature']}")
-        return False
-    if not (0.1 <= data["vibration"] <= 5.0):
-        print(f"Incorrect vibration: {data['vibration']}")
-        return False
-    if not (10.0 <= data["pressure"] <= 50.0):
-        print(f"Incorrect pressure: {data['pressure']}")
-        return False
-    if not (500 <= data["rpm"] <= 5000):
-        print(f"Incorrect RPM: {data['rpm']}")
-        return False
-    return True
+app = FastAPI()
+
+def fetch_private_key():
+    try:
+        private_key_pem = requests.get(f"{CRYPTOGRAPHY_SERVICE_FASTAPI_URL}/private-key").json()["private-key"]
+        return serialization.load_pem_private_key(private_key_pem.encode("utf-8"),password=None)
+    except Exception as e:
+        print(f"Error fetching private key: {e}")
+        return None
+    
+private_key = fetch_private_key()
+
+def sign_data(data, private_key): 
+
+    message = json.dumps(data).encode()
+
+    signature = private_key.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    
+    return signature
+
 
 def generate_sensor_data():
     """Generates continues (simulated) sensor data for four IoT-Engines."""
@@ -38,12 +52,21 @@ def generate_sensor_data():
                 "rpm": random.randint(1000, 3000),
             }
 
-            if validate_data(data):
-                print(f"Send: {data}")
-            else:
-                print(f"Fehlerhafte Daten erkannt: {data}")
+            
+
+            signature = sign_data(data, private_key)
+            signature_base64 = base64.b64encode(signature).decode("utf-8")
+
+            chunk = {
+                        "data": data, 
+                        "signature": signature_base64
+                    }
+            
+            yield json.dumps(chunk, ensure_ascii=False) + "\n"
+
         time.sleep(1)  # 1 sec delay per measurement
 
 
-if __name__ == "__main__":
-    generate_sensor_data()
+@app.get("/stream")
+async def stream_data():
+    return StreamingResponse(generate_sensor_data(), media_type="text/event-stream")
