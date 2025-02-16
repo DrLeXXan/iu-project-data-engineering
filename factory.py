@@ -8,7 +8,7 @@ import random
 import json
 import base64
 
-CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
+CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography-service:8000"
 
 app = FastAPI()
 

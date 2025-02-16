@@ -6,7 +6,7 @@ import time
 import json
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
-ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
+ENGINE_FASTAPI_SERVER_URL = "http://traefik:8081"
 
 def fetch_public_key():
     """Returns the public key which is received through the Cryptography API"""
@@ -41,10 +41,21 @@ def stream_and_verify(public_key) -> None:
     """Received the data stream from the smart factory (engine) API"""
     try:
         with requests.get(f"{ENGINE_FASTAPI_SERVER_URL}/stream", stream=True) as response:
-            for line in response.iter_lines():
-                if line:  # Skip empty lines
+            buffer = ""
+            for chunk in response.iter_content(chunk_size=1024):
+                buffer += chunk.decode("utf-8")
+
+                while "\n" in buffer:
+                    json_object, buffer = buffer.split("\n", 1)
+                    json_object = json_object.strip()
+
+                    if not json_object.startswith("{") or not json_object.endswith("}"):
+                        print(f"Skipping malformed JSON: {json_object}")
+                        continue
+
                     try:
-                        data = json.loads(line.decode("utf-8"))
+                        data = json.loads(json_object)
+
                         sensor_data = data.get("data")
                         signature = data.get("signature")
 
@@ -53,10 +64,9 @@ def stream_and_verify(public_key) -> None:
                         else:
                             print("Received incomplete data, skipping...")
                             # Skipping or store in database for analysis?
+
                     except json.JSONDecodeError as e:
                         print(f"JSON parsing error: {e}")
-                    except Exception as e:
-                        print(f"Error processing data: {e}")
     except Exception as e:
         print(f"Error connecting to stream: {e}")
 

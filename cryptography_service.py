@@ -6,33 +6,26 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # Generate RSA keys once and store them
-def generate_rsa_keys() -> str:
-    """Generates the private and public key and returns them as serialized and decoded string"""
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-        backend=default_backend()
-    )
-    public_key = private_key.public_key()
 
-    # Serialize private key
-    private_key_pem = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
-    ).decode('utf-8')
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,
+    backend=default_backend()
+)
+public_key = private_key.public_key()
 
-    # Serialize public key
-    public_key_pem = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    ).decode('utf-8')
+# Serialize private key
+private_key_pem = private_key.private_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PrivateFormat.PKCS8,
+    encryption_algorithm=serialization.NoEncryption()
+).decode('utf-8')
 
-    return private_key_pem, public_key_pem
-
-# Generate keys once and store them in memory
-private_key_pem, public_key_pem = generate_rsa_keys()
-
+# Serialize public key
+public_key_pem = public_key.public_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PublicFormat.SubjectPublicKeyInfo
+).decode('utf-8')
 
 #Creates the different API for private and public key
 @app.get("/private-key")

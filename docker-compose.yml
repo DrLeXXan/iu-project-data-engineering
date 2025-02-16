@@ -1,15 +1,52 @@
 services:
-  engine-service:
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik_lb
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8081"
+      - "--entrypoints.traefik.address=:8080"
+    ports:
+      - "8081:8081"  # API Gateway für Microservices
+      - "8080:8080"  # Traefik Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - pipline-network
+
+  cryptography-service:
     build:
       context: .
-      dockerfile: Dockerfile.engine
-    container_name: engine_service
+      dockerfile: Dockerfile.crypto
+    container_name: cryptography_service
+    expose:
+      - "8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cryptography.rule=Host(`localhost`)"
+      - "traefik.http.services.cryptography.loadbalancer.server.port=8000"
+    networks:
+      - pipline-network
+
+  factory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.factory
+    container_name: factory_service
     depends_on:
       - cryptography-service
-    ports:
-      - "8001:8001"
+    expose:
+      - "8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.factory.rule=PathPrefix(`/stream`)"
+      - "traefik.http.services.factory.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.sse.headers.customResponseHeaders.Connection=keep-alive"
+      - "traefik.http.middlewares.sse.headers.customResponseHeaders.Cache-Control=no-cache"
+      - "traefik.http.routers.factory.middlewares=sse"
     networks:
-      - app-network
+      - pipline-network
 
   verification-service:
     build:
@@ -17,20 +54,17 @@ services:
       dockerfile: Dockerfile.verification
     container_name: verification_service
     depends_on:
-      - engine-service
+      - cryptography-service
+      - factory-service
+    expose:
+      - "8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.validator.rule=Host(`localhost`)"
+      - "traefik.http.services.validator.loadbalancer.server.port=8081"
     networks:
-      - app-network
-
-  cryptography-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.crypto
-    container_name: cryptography_service
-    ports:
-      - "8000:8000"
-    networks:
-      - app-network
+      - pipline-network
 
 networks:
-  app-network:
+  pipline-network:
     driver: bridge
