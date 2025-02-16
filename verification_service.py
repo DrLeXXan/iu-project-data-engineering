@@ -4,9 +4,20 @@ import base64
 import requests
 import time
 import json
+from kafka import KafkaProducer, KafkaConsumer
+
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 ENGINE_FASTAPI_SERVER_URL = "http://traefik:8081"
+
+KAFKA_BROKER = "kafka:9092"
+KAFKA_TOPIC = "factory_data_verified"
+
+producer = KafkaProducer(
+    bootstrap_servers= KAFKA_BROKER,
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+
 
 def fetch_public_key():
     """Returns the public key which is received through the Cryptography API"""
@@ -33,7 +44,10 @@ def verify_signature(public_key, data, signature_base64) -> str:
             hashes.SHA256()
         )
         print(f"Signature valid for message: {data}")
-        # Insert data into the pipline -> Kafka producer
+
+        producer.send(KAFKA_TOPIC, json.dumps(data))
+        producer.flush()
+
     except Exception as e:
         print(f"Signature verification failed: {e}")
 

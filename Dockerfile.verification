@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY verification_service.py .
 
-RUN pip install requests cryptography
+RUN pip install requests cryptography kafka-python
 
 CMD ["python", "-u", "verification_service.py"]
