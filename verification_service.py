@@ -1,12 +1,24 @@
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes, serialization
 import base64
 import requests
 import time
 import json
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes, serialization
+from kafka import KafkaProducer
+
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
+
+
+KAFKA_BROKER = "kafka:9093"
+KAFKA_TOPIC = "factory_data_verified"
+
+
+producer = KafkaProducer(
+    bootstrap_servers= KAFKA_BROKER,
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
 
 def fetch_public_key():
     try:
@@ -31,6 +43,9 @@ def verify_signature(public_key, data, signature_base64):
             hashes.SHA256()
         )
         print(f"Signature valid for message: {data}")
+        producer.send(KAFKA_TOPIC, json.dumps(data))
+        producer.flush()
+
         # Insert data into the pipline -> Kafka producer
     except Exception as e:
         print(f"Signature verification failed: {e}")
@@ -58,7 +73,7 @@ def stream_and_verify(public_key):
     except Exception as e:
         print(f"Error connecting to stream: {e}")
 
-        
+
 if __name__ == "__main__":
     time.sleep(5)
 
@@ -68,4 +83,3 @@ if __name__ == "__main__":
     if public_key:
         print("Public Key Retrieved. Starting verification...")
         stream_and_verify(public_key)
-        
