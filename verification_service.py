@@ -1,16 +1,16 @@
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes, serialization
 import base64
 import requests
 import time
 import json
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes, serialization
 from kafka import KafkaProducer, KafkaConsumer
 
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 ENGINE_FASTAPI_SERVER_URL = "http://traefik:8081"
 
-KAFKA_BROKER = "kafka:9092"
+KAFKA_BROKER = "kafka:9093"
 KAFKA_TOPIC = "factory_data_verified"
 
 producer = KafkaProducer(
