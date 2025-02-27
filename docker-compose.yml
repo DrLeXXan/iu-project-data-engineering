@@ -1,9 +1,9 @@
 services:
-  engine-service:
+  factory-service:
     build:
-      context: .
-      dockerfile: Dockerfile.engine
-    container_name: engine_service
+      context: ./factory
+      dockerfile: Dockerfile
+    container_name: factory_service
     depends_on:
       - cryptography-service
     ports:
@@ -13,11 +13,11 @@ services:
 
   verification-service:
     build:
-      context: .
-      dockerfile: Dockerfile.verification
+      context: ./verification
+      dockerfile: Dockerfile
     container_name: verification_service
     depends_on:
-      engine-service:
+      factory-service:
         condition: service_started
       kafka:
         condition: service_healthy
@@ -26,8 +26,8 @@ services:
 
   cryptography-service:
     build:
-      context: .
-      dockerfile: Dockerfile.crypto
+      context: ./cryptography
+      dockerfile: Dockerfile
     container_name: cryptography_service
     ports:
       - "8000:8000"

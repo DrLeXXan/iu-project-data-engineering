@@ -3,11 +3,15 @@ CREATE SCHEMA IF NOT EXISTS factory;
 
 -- Create a users table
 CREATE TABLE factory.sensor_data (
-    engine_id varchar(10) NOT NULL,
+    factory_id varchar(15) NOT NULL,
+    engine_id varchar(15) NOT NULL,
     timestamp timestamp,
-    temperature float,
+    temp_air float,
+    temp_oil float,
+    temp_exhaust float,
     vibration float,
-    pressure float,
+    pressure_1 float,
+    pressure_2 float,
     rpm float,
     hash varchar
 );
