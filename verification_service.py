@@ -12,7 +12,7 @@ ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
 
 
 KAFKA_BROKER = "kafka:9093"
-KAFKA_TOPIC = "factory_data_verified"
+# KAFKA_TOPIC = "factory_data_verified"
 
 
 producer = KafkaProducer(
@@ -43,6 +43,11 @@ def verify_signature(public_key, data, signature_base64):
             hashes.SHA256()
         )
         print(f"Signature valid for message: {data}")
+
+        KAFKA_TOPIC = data["factory_id"]
+        print(KAFKA_TOPIC)
+
+
         producer.send(KAFKA_TOPIC, json.dumps(data))
         producer.flush()
 

@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY IoT_engine.py .
 
-RUN pip install cryptography fastapi uvicorn requests
-
-EXPOSE 8000
+RUN pip install cryptography fastapi uvicorn requests numpy
 
 CMD ["uvicorn", "IoT_engine:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

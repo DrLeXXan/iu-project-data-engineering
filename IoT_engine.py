@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 import requests
 import time
-import random
+from numpy import random
 import json
 import base64
 
@@ -19,10 +19,10 @@ def fetch_private_key():
     except Exception as e:
         print(f"Error fetching private key: {e}")
         return None
-    
+
 private_key = fetch_private_key()
 
-def sign_data(data, private_key): 
+def sign_data(data, private_key):
 
     message = json.dumps(data).encode()
 
@@ -34,35 +34,41 @@ def sign_data(data, private_key):
         ),
         hashes.SHA256()
     )
-    
+
     return signature
 
 
 def generate_sensor_data():
     """Generates continues (simulated) sensor data for four IoT-Engines."""
-    machine_ids = ["engine_001", "engine_002", "engine_003", "engine_004"]
+    factory_ids = ["factory_001","factory_002"]
+    machine_ids = ["engine_001", "engine_002"]
     while True:
-        for machine_id in machine_ids:
-            data = {
-                "engine_id": machine_id,
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "temperature": round(random.uniform(50.0, 100.0), 2),
-                "vibration": round(random.uniform(0.1, 5.0), 2),
-                "pressure": round(random.uniform(5.0, 50.0), 2),
-                "rpm": random.randint(1000, 3000),
-            }
+        for factory_id in factory_ids:
+            for machine_id in machine_ids:
+                data = {
+                    "factory_id": factory_id,
+                    "engine_id": machine_id,
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "temp_air": float(round(random.normal(loc=100, size=(1))[0], 2)),
+                    "temp_oil": float(round(random.normal(loc=90, size=(1))[0], 2)),
+                    "temp_exhaust": float(round(random.normal(loc=760, size=(1))[0], 2)),
+                    "vibration": float(round(random.normal(loc=2.8, scale=0.5, size=(1))[0], 2)),
+                    "pressure_1": float(round(random.normal(loc=150, size=(1))[0], 2)),
+                    "pressure_2": float(round(random.normal(loc=150, size=(1))[0], 2)),
+                    "rpm": int(round(random.normal(loc=3000, size=(1))[0],0))
+                }
 
-            
 
-            signature = sign_data(data, private_key)
-            signature_base64 = base64.b64encode(signature).decode("utf-8")
 
-            chunk = {
-                        "data": data, 
-                        "signature": signature_base64
-                    }
-            
-            yield json.dumps(chunk, ensure_ascii=False) + "\n"
+                signature = sign_data(data, private_key)
+                signature_base64 = base64.b64encode(signature).decode("utf-8")
+
+                chunk = {
+                            "data": data,
+                            "signature": signature_base64
+                        }
+
+                yield json.dumps(chunk, ensure_ascii=False) + "\n"
 
         time.sleep(1)  # 1 sec delay per measurement
 
