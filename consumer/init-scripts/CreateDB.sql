@@ -13,5 +13,5 @@ CREATE TABLE factory.sensor_data (
     pressure_1 float,
     pressure_2 float,
     rpm float,
-    hash varchar
+    CRTED timestamp NOT NULL DEFAULT NOW()
 );

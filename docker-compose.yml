@@ -81,13 +81,28 @@ services:
     container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: factory_user
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: factory_db
     ports:
       - "5432:5432"
     volumes:
       - ./consumer/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  consumer:
+    build:
+      context: ./kafka_consumer
+      dockerfile: Dockerfile
+    container_name: consumer
+    depends_on:
+      factory-service:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8099:80"
     networks:
       - app-network
 
@@ -103,15 +118,23 @@ services:
   #   networks:
   #     - app-network
 
-  # spark:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.consumer
-  #   container_name: spark_service
+  # jobmanager:
+  #   build: ./consumer
+  #   hostname: jobmanager
+  #   command: jobmanager
   #   ports:
-  #     - "8005:8005"
-  #   networks:
-  #     - app-network
+  #     - "8081:8081"
+  #   environment:
+  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  # taskmanager:
+  #   build: ./consumer
+  #   depends_on:
+  #     - jobmanager
+  #   command: taskmanager
+  #   scale: 2
+  #   environment:
+  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
 
 networks:
   app-network:

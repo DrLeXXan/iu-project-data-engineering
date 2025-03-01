@@ -42,7 +42,8 @@ def verify_signature(public_key, data, signature_base64):
             ),
             hashes.SHA256()
         )
-        print(f"Signature valid for message: {data}")
+        # print(f"Signature valid for message: {data}")
+        print(f"Signature valid")
 
         KAFKA_TOPIC = data["factory_id"]
 
