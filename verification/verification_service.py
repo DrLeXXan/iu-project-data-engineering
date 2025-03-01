@@ -8,7 +8,7 @@ from kafka import KafkaProducer
 
 
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
-ENGINE_FASTAPI_SERVER_URL = "http://engine_service:8000"
+ENGINE_FASTAPI_SERVER_URL = "http://factory_service:8000"
 
 
 KAFKA_BROKER = "kafka:9093"
@@ -42,10 +42,10 @@ def verify_signature(public_key, data, signature_base64):
             ),
             hashes.SHA256()
         )
-        print(f"Signature valid for message: {data}")
+        # print(f"Signature valid for message: {data}")
+        print(f"Signature valid")
 
         KAFKA_TOPIC = data["factory_id"]
-        print(KAFKA_TOPIC)
 
 
         producer.send(KAFKA_TOPIC, json.dumps(data))
