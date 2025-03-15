@@ -45,16 +45,21 @@ def verify_signature(public_key, data, signature_base64):
         # print(f"Signature valid for message: {data}")
         print(f"Signature valid")
 
-        KAFKA_TOPIC = data["factory_id"]
+        try:
+            KAFKA_TOPIC = data["factory_id"]
 
 
-        producer.send(KAFKA_TOPIC, json.dumps(data))
-        producer.flush()
+            producer.send(KAFKA_TOPIC, data)
+            producer.flush()
+        except Exception as e:
+            print(f"Kafka consumer not sucessfull: {e}")
 
         # Insert data into the pipline -> Kafka producer
     except Exception as e:
         print(f"Signature verification failed: {e}")
         # Dont insert data into the pipline -> Security Hub
+
+
 
 def stream_and_verify(public_key):
     try:

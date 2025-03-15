@@ -91,7 +91,7 @@ services:
     networks:
       - app-network
 
-  consumer:
+  consumer_postgres:
     build:
       context: ./kafka_consumer
       dockerfile: Dockerfile
@@ -118,23 +118,43 @@ services:
   #   networks:
   #     - app-network
 
-  # jobmanager:
-  #   build: ./consumer
-  #   hostname: jobmanager
-  #   command: jobmanager
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  jobmanager:
+    build: ./consumer
+    container_name: jobmanager
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: standalone-job --job-classname com.job.ClassName [--job-id <job id>] [--jars /path/to/artifact1,/path/to/artifact2] [--fromSavepoint /path/to/savepoint] [--allowNonRestoredState] [job arguments]
+    volumes:
+      - /host/path/to/job/artifacts:/opt/flink/usrlib
+    ports:
+      - "8081:8081"  # Flink Web UI
+      - "6123:6123"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 2
+    networks:
+      - app-network
 
-  # taskmanager:
-  #   build: ./consumer
-  #   depends_on:
-  #     - jobmanager
-  #   command: taskmanager
-  #   scale: 2
-  #   environment:
-  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  taskmanager:
+    build: ./consumer
+    container_name: taskmanager
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    volumes:
+      - /host/path/to/job/artifacts:/opt/flink/usrlib
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 2
+    networks:
+      - app-network
 
 networks:
   app-network:
