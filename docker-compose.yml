@@ -36,8 +36,10 @@ services:
 
   kafka:
     image: apache/kafka
+    container_name: kafka
     ports:
       - "9092:9092"
+      - "9093:9093"
     environment:
       # Configure listeners for both docker and host communication
       KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
@@ -56,7 +58,7 @@ services:
       # Required for a single node cluster
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     healthcheck:
-      test: ["CMD", "bash", "-c", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"]
+      test: ["CMD", "bash", "-c", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9093 --list"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -118,23 +120,18 @@ services:
   #   networks:
   #     - app-network
 
-  # jobmanager:
-  #   build: ./consumer
-  #   hostname: jobmanager
-  #   command: jobmanager
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
-
-  # taskmanager:
-  #   build: ./consumer
-  #   depends_on:
-  #     - jobmanager
-  #   command: taskmanager
-  #   scale: 2
-  #   environment:
-  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  bytewax:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    container_name: bytewax
+    depends_on:
+      factory-service:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    networks:
+      - app-network
 
 networks:
   app-network:
