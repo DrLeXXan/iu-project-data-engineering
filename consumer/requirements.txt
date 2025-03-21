@@ -1,2 +1,2 @@
-apache-flink
-psycopg2-binary
+bytewax[kafka]==0.21.1
+# confluent_kafka
