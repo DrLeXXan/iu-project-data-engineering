@@ -1,13 +1,27 @@
 # Start from a debian slim with python support
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim
+
 # Set up a workdir where we can put our dataflow
 WORKDIR /bytewax
-# Install bytewax and the dependencies you need here
-RUN pip install bytewax==0.21.1
-RUN pip install confluent_kafka
-RUN pip install orjson
-RUN pip install typing
-RUN pip install datetime
+
+# Install system dependencies required for Bytewax, Kafka, and PostgreSQL
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libpq-dev \
+    python3-dev \
+    librdkafka-dev \
+    rustc \
+    cargo \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip, install maturin manually, and ensure we have wheel
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir maturin setuptools wheel
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the dataflow in the workdir
 COPY stream_process.py stream_process.py

@@ -1,2 +1,6 @@
-bytewax[kafka]==0.21.1
-# confluent_kafka
+bytewax[kafka]
+confluent-kafka
+orjson
+typing
+datetime
+psycopg2-binary

@@ -93,32 +93,17 @@ services:
     networks:
       - app-network
 
-  consumer:
-    build:
-      context: ./kafka_consumer
-      dockerfile: Dockerfile
-    container_name: consumer
-    depends_on:
-      factory-service:
-        condition: service_started
-      kafka:
-        condition: service_healthy
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: always
     ports:
-      - "8099:80"
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@postgres-iu.com
+      PGADMIN_DEFAULT_PASSWORD: mypassword
     networks:
       - app-network
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin4_container
-  #   restart: always
-  #   ports:
-  #     - "8888:8888"
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: user@postgres-iu.com
-  #     PGADMIN_DEFAULT_PASSWORD: mypassword
-  #   networks:
-  #     - app-network
 
   bytewax:
     build:
@@ -130,8 +115,24 @@ services:
         condition: service_started
       kafka:
         condition: service_healthy
+      postgres:
+        condition: service_started
     networks:
       - app-network
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_LOG_LEVEL=warning
+    ports:
+      - "3000:3000"
+    volumes:
+      - "grafana_storage:/var/lib/grafana"
+
+volumes:
+  grafana_storage: {}
 
 networks:
   app-network:
