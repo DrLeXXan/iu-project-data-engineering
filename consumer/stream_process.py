@@ -54,7 +54,7 @@ def extract_value(msg):
 def extract_timestamp(msg):
     """Extract and convert Kafka timestamp"""
     timestamp = datetime.strptime(msg["timestamp"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
-    print(f"Timestamp_def: {timestamp}")
+    # print(f"Timestamp_def: {timestamp}, {type(timestamp)}")
     return datetime.strptime(msg["timestamp"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
 
 
@@ -97,10 +97,10 @@ def PostgresAvgSink(batch):
     engine_id = batch[0]
     # print(f"data: {engine_id}")
     epoch_time = batch[1][0]
-    print(f"data: {epoch_time}")
+    # print(f"data: {epoch_time}")
     utc_datetime = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
-    print(f"UTC: {utc_datetime}")
-    print(f"Without: {datetime.fromtimestamp(epoch_time)}")
+    # print(f"UTC: {utc_datetime}")
+    # print(f"Without: {datetime.fromtimestamp(epoch_time)}")
 
     for row in data:
         temp_air = temp_oil = temp_exhaust = vibration = pressure_1 = pressure_2 = rpm = 0.00
@@ -172,13 +172,17 @@ op.map("raw_to_postgres", mapped, lambda x: PostgresSink(x))
 
 keyed_stream = op.key_on("key_on_engine_id", mapped, lambda e: e["engine_id"])
 
+now = datetime.now(timezone.utc)
+align_to = now.replace(minute=0, second=0, microsecond=0)
+print(f"Align_to: {align_to}")
+
 clock = EventClock(
     ts_getter=extract_timestamp,
     wait_for_system_duration=timedelta(seconds=10)
 )
 windower = TumblingWindower(
     length=timedelta(seconds=10),
-    align_to=datetime(2025, 1, 1, tzinfo=timezone.utc)
+    align_to=align_to
 )
 
 windowed = collect_window(
