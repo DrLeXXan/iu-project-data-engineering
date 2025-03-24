@@ -1,2 +1,6 @@
-apache-flink
+bytewax[kafka]
+confluent-kafka
+orjson
+typing
+datetime
 psycopg2-binary
