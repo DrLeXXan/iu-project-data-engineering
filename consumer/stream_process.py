@@ -42,8 +42,6 @@ def extract_value(msg):
         # Convert JSON string to Python dictionary
         message_dict = json.loads(json.loads(message_str))
 
-        print(f"Kafka Timestamp: {msg.timestamp}")
-
         return message_dict
 
     except Exception as e:
@@ -53,8 +51,6 @@ def extract_value(msg):
 
 def extract_timestamp(msg):
     """Extract and convert Kafka timestamp"""
-    timestamp = datetime.strptime(msg["timestamp"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
-    print(f"Timestamp_def: {timestamp}")
     return datetime.strptime(msg["timestamp"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
 
 
@@ -87,20 +83,13 @@ def PostgresSink(data):
 
 def PostgresAvgSink(batch):
 
-    print(f"Data: {batch}")
     # -- Aggregate the collected data --
 
     data = batch[1][1]
-    # print(f"data: {data}")
     factory_id = data[0]["factory_id"]
-    # print(f"data: {factory_id}")
     engine_id = batch[0]
-    # print(f"data: {engine_id}")
     epoch_time = batch[1][0]
-    print(f"data: {epoch_time}")
     utc_datetime = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
-    print(f"UTC: {utc_datetime}")
-    print(f"Without: {datetime.fromtimestamp(epoch_time)}")
 
     for row in data:
         temp_air = temp_oil = temp_exhaust = vibration = pressure_1 = pressure_2 = rpm = 0.00
@@ -124,9 +113,6 @@ def PostgresAvgSink(batch):
     avg_pressure_1 = pressure_1 / count
     avg_pressure_2 = pressure_2 / count
     avg_rpm = rpm / count
-
-
-    # print(f"Avg: {factory_id,engine_id,utc_datetime,avg_temp_air,avg_temp_oil,avg_temp_exhaust,avg_vibration,avg_pressure_1,avg_pressure_2,avg_rpm, count}")
 
 
     # -- Save aggreagted value into PostgresDB --
@@ -191,5 +177,3 @@ windowed = collect_window(
 op.output("output-window", windowed.down, StdOutSink())
 
 op.map("avg_to_postgres", windowed.down, lambda x: PostgresAvgSink(x))
-
-# op.output("output", mapped, StdOutSink())

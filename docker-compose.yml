@@ -8,6 +8,28 @@ services:
       - cryptography-service
     ports:
       - "8001:8001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.factory-service.rule=PathPrefix(`/stream`)"
+      - "traefik.http.services.factory-service.loadbalancer.server.port=8001"
+      - "traefik.docker.network=app-network"
+    networks:
+      - app-network
+
+  traefik:
+    image: traefik:v3.3
+    container_name: traefik
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"       # Expose HTTP traffic
+      - "8080:8080"   # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - app-network
 
@@ -68,7 +90,7 @@ services:
   kafka-ui:
     image: ghcr.io/kafbat/kafka-ui:latest
     ports:
-      - 8080:8080
+      - 8081:8081
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: local
@@ -120,20 +142,7 @@ services:
     networks:
       - app-network
 
-  grafana:
-    image: grafana/grafana-enterprise
-    container_name: grafana
-    restart: unless-stopped
-    environment:
-      - GF_LOG_LEVEL=warning
-    ports:
-      - "3000:3000"
-    volumes:
-      - "grafana_storage:/var/lib/grafana"
-
-volumes:
-  grafana_storage: {}
-
 networks:
   app-network:
     driver: bridge
+    name: app-network
