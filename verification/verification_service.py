@@ -10,8 +10,6 @@ from kafka import KafkaProducer
 CRYPTOGRAPHY_SERVICE_FASTAPI_URL = "http://cryptography_service:8000"
 ENGINE_FASTAPI_SERVER_URL = "http://traefik:80"
 
-# Test Test
-
 
 KAFKA_BROKER = "kafka:9093"
 # KAFKA_TOPIC = "factory_data_verified"
