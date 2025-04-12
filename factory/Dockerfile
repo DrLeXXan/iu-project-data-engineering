@@ -9,4 +9,4 @@ RUN set -ex; \
 
 COPY factory.py .
 
-CMD ["uvicorn", "factory:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+CMD ["uvicorn", "factory:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
