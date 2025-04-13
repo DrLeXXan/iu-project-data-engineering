@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Factory Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<style>
+  body {
+    font-family: sans-serif;
+    background-color: #f7f7f7;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .row {
+    display: flex; /* Use flexbox for horizontal alignment */
+    justify-content: space-around; /* Add space between the containers */
+    margin-bottom: 40px;
+  }
+
+  .engine-container {
+    width: 45%; /* Adjust width to fit two containers side by side */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+  }
+
+  .engine-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .engine-data {
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+</style>
+<body>
+
+  <h1>Factory Dashboard</h1>
+  <div id="dashboard"></div>
+
+  <script>
+    const dashboard = document.getElementById("dashboard");
+
+    async function updateDashboard() {
+      try {
+        // Fetch data from the API
+        const response = await fetch('/api/latest-data');
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const data = result.data;
+
+          // Clear the dashboard
+          dashboard.innerHTML = "";
+
+          // Create a row for engine 1 and engine 2
+          const row = document.createElement("div");
+          row.className = "row";
+
+          // Process data for engine 1
+          const engine1 = data.find(engine => engine.engine_id === "engine_001");
+          if (engine1) {
+            const engine1Container = document.createElement("div");
+            engine1Container.className = "engine-container";
+            engine1Container.innerHTML = `
+              <div class="engine-title">Engine 1</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine1.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine1.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine1.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine1.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine1.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine1.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine1.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine1Container);
+          }
+
+          // Process data for engine 2
+          const engine2 = data.find(engine => engine.engine_id === "engine_002");
+          if (engine2) {
+            const engine2Container = document.createElement("div");
+            engine2Container.className = "engine-container";
+            engine2Container.innerHTML = `
+              <div class="engine-title">Engine 2</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine2.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine2.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine2.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine2.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine2.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine2.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine2.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine2Container);
+          }
+
+          // Process data for engine 3
+          const engine3 = data.find(engine => engine.engine_id === "engine_003");
+          if (engine3) {
+            const engine3Container = document.createElement("div");
+            engine3Container.className = "engine-container";
+            engine3Container.innerHTML = `
+              <div class="engine-title">Engine 3</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine3.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine3.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine3.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine3.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine3.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine3.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine3.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine3Container);
+          }
+
+          // Process data for engine 4
+          const engine4 = data.find(engine => engine.engine_id === "engine_004");
+          if (engine4) {
+            const engine4Container = document.createElement("div");
+            engine4Container.className = "engine-container";
+            engine4Container.innerHTML = `
+              <div class="engine-title">Engine 4</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine4.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine4.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine4.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine4.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine4.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine4.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine4.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine4Container);
+          }
+
+           // Process data for engine 5
+           const engine5 = data.find(engine => engine.engine_id === "engine_005");
+          if (engine5) {
+            const engine5Container = document.createElement("div");
+            engine5Container.className = "engine-container";
+            engine5Container.innerHTML = `
+              <div class="engine-title">Engine 5</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine5.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine5.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine5.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine5.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine5.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine5.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine5.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine5Container);
+          }
+
+           // Process data for engine 6
+           const engine6 = data.find(engine => engine.engine_id === "engine_006");
+          if (engine6) {
+            const engine6Container = document.createElement("div");
+            engine6Container.className = "engine-container";
+            engine6Container.innerHTML = `
+              <div class="engine-title">Engine 6</div>
+              <div class="engine-data">
+                <p><strong>Temp Air:</strong> ${engine6.avg_temp_air.toFixed(2)} °C</p>
+                <p><strong>Temp Oil:</strong> ${engine6.avg_temp_oil.toFixed(2)} °C</p>
+                <p><strong>Temp Exhaust:</strong> ${engine6.avg_temp_exhaust.toFixed(2)} °C</p>
+                <p><strong>Vibration:</strong> ${engine6.avg_vibration.toFixed(2)}</p>
+                <p><strong>Pressure 1:</strong> ${engine6.avg_pressure_1.toFixed(2)} bar</p>
+                <p><strong>Pressure 2:</strong> ${engine6.avg_pressure_2.toFixed(2)} bar</p>
+                <p><strong>RPM:</strong> ${engine6.avg_rpm.toFixed(0)}</p>
+              </div>
+            `;
+            row.appendChild(engine6Container);
+          }
+
+          // Append the row to the dashboard
+          dashboard.appendChild(row);
+        } else {
+          console.error("Error fetching data:", result.message);
+        }
+      } catch (error) {
+        console.error("Error updating dashboard:", error);
+      }
+    }
+
+    // Update the dashboard every 3 seconds
+    updateDashboard();
+    setInterval(updateDashboard, 3000);
+  </script>
+
+</body>
+</html>

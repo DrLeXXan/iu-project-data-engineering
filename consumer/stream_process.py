@@ -1,7 +1,6 @@
 import json
 import time
 from datetime import datetime, timedelta, timezone
-
 import psycopg2
 
 from bytewax.connectors.kafka import KafkaSource
@@ -17,84 +16,71 @@ from bytewax.operators.windowing import (
 # Delay to make sure Kafka is running and topic is created
 time.sleep(10)
 
-
 DB_CONFIG = {
-    "dbname" : "factory_db",
-    "user" : "factory_user",
-    "password" : "mypassword",
-    "host" : "postgres",
-    "port" : "5432",
+    "dbname": "factory_db",
+    "user": "factory_user",
+    "password": "mypassword",
+    "host": "postgres",
+    "port": "5432",
 }
 
 # Kafka Source (consume messages from topic)
 kafka_source = KafkaSource(
     brokers=["kafka:9093"],
-    topics=["factory_001"],
+    topics=["factory_001","factory_002"],
 )
-
 
 def extract_value(msg):
     """Extract JSON data from KafkaSourceMessage."""
     try:
         # Decode byte string to a normal string
         message_str = msg.value.decode("utf-8")
-
         # Convert JSON string to Python dictionary
         message_dict = json.loads(json.loads(message_str))
-
         return message_dict
-
     except Exception as e:
         print(f"Error parsing Kafka message: {e}")
         return None  # Return None if there's an error
 
-
 def extract_timestamp(msg):
-    """Extract and convert Kafka timestamp"""
+    """Extract and convert Kafka timestamp."""
     return datetime.strptime(msg["timestamp"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
 
-
 def PostgresSink(data):
-      conn = psycopg2.connect(**DB_CONFIG)
-      cursor = conn.cursor()
-
-      cursor.execute("""
-                INSERT INTO factory.sensor_data
-                (factory_id, engine_id, timestamp, temp_air, temp_oil, temp_exhaust, vibration, pressure_1, pressure_2, rpm)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-            """, (
-                data["factory_id"],
-                data["engine_id"],
-                datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc),
-                data["temp_air"],
-                data["temp_oil"],
-                data["temp_exhaust"],
-                data["vibration"],
-                data["pressure_1"],
-                data["pressure_2"],
-                data["rpm"]
-            ))
-
-      conn.commit()
-      cursor.close()
-      conn.close()
-
-
+    conn = psycopg2.connect(**DB_CONFIG)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO factory.sensor_data
+        (factory_id, engine_id, timestamp, temp_air, temp_oil, temp_exhaust, vibration, pressure_1, pressure_2, rpm)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    """, (
+        data["factory_id"],
+        data["engine_id"],
+        datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc),
+        data["temp_air"],
+        data["temp_oil"],
+        data["temp_exhaust"],
+        data["vibration"],
+        data["pressure_1"],
+        data["pressure_2"],
+        data["rpm"]
+    ))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 def PostgresAvgSink(batch):
-
-    # -- Aggregate the collected data --
-
+    # Aggregate the collected data
     data = batch[1][1]
     factory_id = data[0]["factory_id"]
     engine_id = batch[0]
     epoch_time = batch[1][0]
     utc_datetime = datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
 
-    for row in data:
-        temp_air = temp_oil = temp_exhaust = vibration = pressure_1 = pressure_2 = rpm = 0.00
-        count = 0
+    temp_air = temp_oil = temp_exhaust = vibration = pressure_1 = pressure_2 = rpm = 0.00
+    count = 0
 
+    for row in data:
         temp_air += row["temp_air"]
         temp_oil += row["temp_oil"]
         temp_exhaust += row["temp_exhaust"]
@@ -102,9 +88,7 @@ def PostgresAvgSink(batch):
         pressure_1 += row["pressure_1"]
         pressure_2 += row["pressure_2"]
         rpm += row["rpm"]
-
         count += 1
-
 
     avg_temp_air = temp_air / count
     avg_temp_oil = temp_oil / count
@@ -114,47 +98,38 @@ def PostgresAvgSink(batch):
     avg_pressure_2 = pressure_2 / count
     avg_rpm = rpm / count
 
-
-    # -- Save aggreagted value into PostgresDB --
-
+    # Save aggregated value into PostgresDB
     conn = psycopg2.connect(**DB_CONFIG)
-    # print("Database connected successfully")
     cursor = conn.cursor()
-
     cursor.execute("""
-                INSERT INTO factory.aggregated_sensor_data
-                (factory_id, engine_id, watermark, avg_temp_air, avg_temp_oil, avg_temp_exhaust, avg_vibration, avg_pressure_1, avg_pressure_2, avg_rpm, batch_size)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-            """, (
-                factory_id,
-                engine_id,
-                utc_datetime,
-                avg_temp_air,
-                avg_temp_oil,
-                avg_temp_exhaust,
-                avg_vibration,
-                avg_pressure_1,
-                avg_pressure_2,
-                avg_rpm,
-                count
-            ))
-
-
+        INSERT INTO factory.aggregated_sensor_data
+        (factory_id, engine_id, watermark, avg_temp_air, avg_temp_oil, avg_temp_exhaust, avg_vibration, avg_pressure_1, avg_pressure_2, avg_rpm, batch_size)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    """, (
+        factory_id,
+        engine_id,
+        utc_datetime,
+        avg_temp_air,
+        avg_temp_oil,
+        avg_temp_exhaust,
+        avg_vibration,
+        avg_pressure_1,
+        avg_pressure_2,
+        avg_rpm,
+        count
+    ))
     conn.commit()
     cursor.close()
     conn.close()
 
-
 # Define the Bytewax dataflow
-flow = Dataflow("Exmaple-Flow")
+flow = Dataflow("Example-Flow")
 
 kinp = op.input("kafka-in", flow, kafka_source)
 
 mapped = op.map("extract_string", kinp, lambda x: extract_value(x))
 
 op.map("raw_to_postgres", mapped, lambda x: PostgresSink(x))
-
-
 
 keyed_stream = op.key_on("key_on_engine_id", mapped, lambda e: e["engine_id"])
 

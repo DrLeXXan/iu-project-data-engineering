@@ -40,8 +40,8 @@ def sign_data(data, private_key):
 
 def generate_sensor_data():
     """Generates continues (simulated) sensor data for four IoT-Engines."""
-    factory_ids = ["factory_001","factory_002"]
-    machine_ids = ["engine_001", "engine_002"]
+    factory_ids = ["factory_001","factory_002","factory_003","factory_004","factory_005","factory_006","factory_007","factory_008","factory_009","factory_010"]
+    machine_ids = ["engine_001", "engine_002","engine_003", "engine_004", "engine_005", "engine_006"]
     while True:
         for factory_id in factory_ids:
             for machine_id in machine_ids:
