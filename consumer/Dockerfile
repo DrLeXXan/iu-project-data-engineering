@@ -19,14 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir maturin setuptools wheel
 
+# Copy requirements and install dependencies
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the dataflow in the workdir
+# Copy the application files
 COPY stream_process.py stream_process.py
-# And run it.
-# Set PYTHONUNBUFFERED to any value to make python flush stdout,
-# or you risk not seeing any output from your python scripts.
+
+# Set PYTHONUNBUFFERED to any value to make python flush stdout
 ENV PYTHONUNBUFFERED 1
+
 CMD ["python", "-m", "bytewax.run", "stream_process"]
