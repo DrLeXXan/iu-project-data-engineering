@@ -12,7 +12,6 @@ ENGINE_FASTAPI_SERVER_URL = "http://traefik:80"
 
 
 KAFKA_BROKER = "kafka:9093"
-# KAFKA_TOPIC = "factory_data_verified"
 
 
 producer = KafkaProducer(
@@ -42,7 +41,6 @@ def verify_signature(public_key, data, signature_base64):
             ),
             hashes.SHA256()
         )
-        # print(f"Signature valid for message: {data}")
         print(f"Signature valid")
 
         KAFKA_TOPIC = data["factory_id"]
@@ -51,16 +49,14 @@ def verify_signature(public_key, data, signature_base64):
         producer.send(KAFKA_TOPIC, json.dumps(data))
         producer.flush()
 
-        # Insert data into the pipline -> Kafka producer
     except Exception as e:
         print(f"Signature verification failed: {e}")
-        # Dont insert data into the pipline -> Security Hub
 
 def stream_and_verify(public_key):
     try:
         with requests.get(f"{ENGINE_FASTAPI_SERVER_URL}/stream", stream=True) as response:
             for line in response.iter_lines():
-                if line:  # Skip empty lines
+                if line:
                     try:
                         data = json.loads(line.decode("utf-8"))
                         sensor_data = data.get("data")
@@ -70,7 +66,6 @@ def stream_and_verify(public_key):
                             verify_signature(public_key, sensor_data, signature)
                         else:
                             print("Received incomplete data, skipping...")
-                            # Skipping or store in database for analysis?
                     except json.JSONDecodeError as e:
                         print(f"JSON parsing error: {e}")
                     except Exception as e:

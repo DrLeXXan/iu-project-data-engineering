@@ -24,7 +24,6 @@ DB_CONFIG = {
     "port": "5432",
 }
 
-# Kafka Source (consume messages from topic)
 kafka_source = KafkaSource(
     brokers=["kafka:9093"],
     topics=["factory_001","factory_002"],
@@ -33,9 +32,7 @@ kafka_source = KafkaSource(
 def extract_value(msg):
     """Extract JSON data from KafkaSourceMessage."""
     try:
-        # Decode byte string to a normal string
         message_str = msg.value.decode("utf-8")
-        # Convert JSON string to Python dictionary
         message_dict = json.loads(json.loads(message_str))
         return message_dict
     except Exception as e:

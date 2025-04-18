@@ -1,7 +1,6 @@
--- Create a new database schema (optional)
 CREATE SCHEMA IF NOT EXISTS factory;
 
--- Create a users table
+-- Create a new table for storing sensor data
 CREATE TABLE factory.sensor_data (
     id SERIAL PRIMARY KEY,
     factory_id varchar(15) NOT NULL,
@@ -16,6 +15,7 @@ CREATE TABLE factory.sensor_data (
     rpm float
 );
 
+-- Create a new table for storing aggregated sensor data
 CREATE TABLE factory.aggregated_sensor_data (
     id SERIAL PRIMARY KEY,
     factory_id varchar(15) NOT NULL,

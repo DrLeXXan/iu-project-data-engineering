@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-# Generate RSA keys once and store them
+
 def generate_rsa_keys() -> str:
     """This function generates the private and public key and returns them as serialized and decoded string"""
     private_key = rsa.generate_private_key(
@@ -30,7 +30,6 @@ def generate_rsa_keys() -> str:
 
     return private_key_pem, public_key_pem
 
-# Generate keys once and store them in memory
 private_key_pem, public_key_pem = generate_rsa_keys()
 
 
