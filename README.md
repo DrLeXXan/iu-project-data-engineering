@@ -46,7 +46,7 @@ This microservice-based streaming architecture processes signed sensor data from
 - **Apache Kafka** – distributed streaming platform
 - **Bytewax** – Python-native stream processing engine
 - **PostgreSQL** – reliable relational database for persistence
-- **Traefik** – dynamic reverse proxy for service discovery
+- **Traefik** – dynamic reverse proxy for service discovery and load balancing
 - **Docker & Docker Compose** – for containerization and orchestration
 - **RSA (Cryptography)** – to ensure data integrity and authenticity
 
