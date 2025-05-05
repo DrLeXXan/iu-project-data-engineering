@@ -9,6 +9,7 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
+        <li><a href="#Features">Features</a></li>
       </ul>
     </li>
     <li>
@@ -18,7 +19,6 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -40,9 +40,7 @@ This microservice-based streaming architecture processes signed sensor data from
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
 ### Built With
-
 
 - **FastAPI** – for API endpoints and service communication
 - **Apache Kafka** – distributed streaming platform
@@ -54,6 +52,18 @@ This microservice-based streaming architecture processes signed sensor data from
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+
+<!-- Features Overview -->
+## Features
+
+- Real-time streaming and validation of sensor data
+- RSA signature verification for data integrity
+- Kafka-based decoupled data ingestion
+- Tumbling window aggregation (10-second intervals)
+- Persistent storage of raw + aggregated data
+- Reproducible with one command using Docker
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 <!-- GETTING STARTED -->
@@ -67,7 +77,7 @@ Docker Desktop & Docker Compose installed locally.
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+Below is an example of how you can instruct your audience on installing and setting up your app.
 
 1. Clone the repo
    ```sh
@@ -80,33 +90,18 @@ _Below is an example of how you can instruct your audience on installing and set
 
 Services should now be available under:
 
-API:
-http://localhost:8001/stream – Live stream via Traefik
-http://localhost:8000/private-key – Private Key from Cryptography-Service
-http://localhost:8000/public-key – Public Key from Cryptography-Service
+**API**
+- http://localhost:8001/stream – Live stream via Traefik
+- http://localhost:8000/private-key – Private Key from Cryptography-Service
+- http://localhost:8000/public-key – Public Key from Cryptography-Service
 
-UI:
-http://localhost:8080 – Traefik dashboard
-http://localhost:8081 – Kafka dashboard
-http://localhost:5050 – Postgres Admin dashboard (Username: factory_user, Password: mypassword)
-http://localhost:8003 – Factory dashboard
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-- Real-time streaming and validation of sensor data
-- RSA signature verification for data integrity
-- Kafka-based decoupled data ingestion
-- Tumbling window aggregation (10-second intervals)
-- Persistent storage of raw + aggregated data
-- Reproducible with one command using Docker
+**UI**
+- http://localhost:8080 – Traefik dashboard
+- http://localhost:8081 – Kafka dashboard
+- http://localhost:5050 – Postgres Admin dashboard (Username: factory_user, Password: mypassword)
+- http://localhost:8003 – Factory dashboard
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- LICENSE -->
@@ -121,7 +116,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@LinkedIn](https://www.linkedin.com/in/lennartboehm)
+Your Name - [@lennartboehm](https://www.linkedin.com/in/lennartboehm)
 
 Project Link: [https://github.com/DrLeXXan/iu-project-data-engineering](https://github.com/DrLeXXan/iu-project-data-engineering)
 
