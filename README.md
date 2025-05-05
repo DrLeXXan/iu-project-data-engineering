@@ -10,6 +10,7 @@
       <ul>
         <li><a href="#built-with">Built With</a></li>
         <li><a href="#Features">Features</a></li>
+        <li><a href="#Architecture">Architecture</a></li>
       </ul>
     </li>
     <li>
@@ -27,12 +28,6 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-<!-- <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-</div> -->
 
 This microservice-based streaming architecture processes signed sensor data from multiple factories in real time. The data is transferred via FastAPI, verified by an RSA-based verification service, and forwarded via Kafka. Bytewax handles time-based aggregation and storage in PostgreSQL. A dashboard visualizes the aggregated values, while Traefik, as a dynamic load balancer, controls routing.
 
@@ -54,7 +49,7 @@ This microservice-based streaming architecture processes signed sensor data from
 
 
 <!-- Features Overview -->
-## Features
+### Features
 
 - Real-time streaming and validation of sensor data
 - RSA signature verification for data integrity
@@ -62,6 +57,17 @@ This microservice-based streaming architecture processes signed sensor data from
 - Tumbling window aggregation (10-second intervals)
 - Persistent storage of raw + aggregated data
 - Reproducible with one command using Docker
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Architecture Overview -->
+### Architecture
+
+<div align="center">
+  <a href="https://github.com/othneildrew/PipelineArchitecture">
+    <img src="images/PipelineArchitecture.png" alt="Logo" width="80" height="80">
+  </a>
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
