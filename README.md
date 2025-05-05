@@ -28,11 +28,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<div align="center">
+<!-- <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
-</div>
+</div> -->
 
 This microservice-based streaming architecture processes signed sensor data from multiple factories in real time. The data is transferred via FastAPI, verified by an RSA-based verification service, and forwarded via Kafka. Bytewax handles time-based aggregation and storage in PostgreSQL. A dashboard visualizes the aggregated values, while Traefik, as a dynamic load balancer, controls routing.
 
