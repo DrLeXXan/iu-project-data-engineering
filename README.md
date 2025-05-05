@@ -64,9 +64,7 @@ This microservice-based streaming architecture processes signed sensor data from
 ### Architecture
 
 <div align="center">
-  <a href="https://github.com/othneildrew/PipelineArchitecture">
-    <img src="images/PipelineArchitecture.png" alt="Logo" width="80" height="80">
-  </a>
+  <img src="PiplineArchitektur.png" alt="Pipeline Architecture">
 </div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
