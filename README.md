@@ -116,7 +116,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@lennartboehm](https://www.linkedin.com/in/lennartboehm)
+LinkedIn - [@lennartboehm](https://www.linkedin.com/in/lennartboehm)
 
 Project Link: [https://github.com/DrLeXXan/iu-project-data-engineering](https://github.com/DrLeXXan/iu-project-data-engineering)
 
